@@ -121,7 +121,7 @@ def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, Depen
  * copySourceFiles - copies both the program being built and the program
  * dependencies from USS directories to data sets
  */
-def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, List<PhysicalDepndency> physicalDependencies) {
+def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, List<PhysicalDependency> physicalDependencies) {
 	// only copy the build file once
 	if (!copiedFileCache.contains(buildFile)) {
 		copiedFileCache.add(buildFile)
@@ -167,7 +167,7 @@ def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, List<
 /*
  * resolveDepencies - recursive method to find all dependencies (resolved and unresolved) for a logical file
  */
-def resolveDependencies(LogicalFile lfile, String searchPath, allDependencies= new List<PhysicalDependency>()) {
+def resolveDependencies(LogicalFile lfile, String searchPath, allDependencies = new ArrayList<PhysicalDependency>()) {
 	// resolve the dependencies for the logical file
 	List<PhysicalDependency> dependencies = lfile.resolveDependencies(searchPath)
 	

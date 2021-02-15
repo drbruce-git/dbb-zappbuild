@@ -169,7 +169,7 @@ def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, List<
  */
 def resolveDependencies(LogicalFile lfile, String searchPath, allDependencies= new List<PhysicalDependency>()) {
 	// resolve the dependencies for the logical file
-	List<PhysicalDependency> dependencies == lfile.resolveDependencies(searchPath)
+	List<PhysicalDependency> dependencies = lfile.resolveDependencies(searchPath)
 	
 	//iterate dependencies
 	dependencies.each { dependency ->

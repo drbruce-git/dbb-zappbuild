@@ -44,7 +44,7 @@ sortedList.each { buildFile ->
 	    // use new v1.1 dependency resolution APIs	
 	    String searchPath = 	props.getFileProperty('copybookSearch', buildFile)
 	    if (props.verbose) println "*** Search path for $buildFile: $searchPath"
-	    logicalFile = buildUtils.getScanner(buildFile).scan(props.workspace, buildFile)
+	    logicalFile = buildUtils.getScanner(buildFile).scan(buildFile, props.workspace)
 	    dependencies = buildUtils.resolveDependencies()
 	}
 	else {  

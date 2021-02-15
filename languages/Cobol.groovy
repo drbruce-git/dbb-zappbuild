@@ -60,7 +60,9 @@ sortedList.each { buildFile ->
 	}
 	if (props.verbose) {
 		println "*** Physical dependencies for $buildFile:"
-		println dependencies
+		dependencies.each { dependency ->
+			println dependency
+		}
 	}
 	
 	// copy build source file and dependency source files to data sets

@@ -134,7 +134,6 @@ def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, List<
 	// copy dependencies to dependency data set
 	if (dependencyPDS && physicalDependencies) {
 		physicalDependencies.each { physicalDependency ->
-			if (props.verbose) println physicalDependency
 			if (physicalDependency.isResolved()) {
 				String physicalDependencyLoc = "${physicalDependency.getSourceDir()}/${physicalDependency.getFile()}"
 

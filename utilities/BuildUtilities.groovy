@@ -181,7 +181,7 @@ def resolveDependencies(LogicalFile lfile, String searchPath, allDependencies= n
 			// if dependency is resolved on file system them search it for additional dependencies
 			if (dependency.isResolved()) {
 				// scan the resolved dependency file to get a logical file
-				def scanner = getScanner(dependency.getFile()))
+				def scanner = getScanner(dependency.getFile())
 				LogicalFile dependencyLogicalFile = scanner.scan(dependency.getSourceDir(),dependency.getFile()
 				// recurively call resolveDependencies to find all dependencies for the logical file
 				allDependencies.addAll(resolveDependencies(dependencyLogicalFile, searchPath, allDependencies))	

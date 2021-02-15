@@ -39,7 +39,7 @@ sortedList.each { buildFile ->
 
 	// Resolve build dependencies for build file
 	LogicalFile logicalFile = null
-	List<PhysicalDependencies> dependencies = null
+	List<PhysicalDependency> dependencies = null
 	if (props.dependencySearchVersion && props.dependencySearchVersion == '1.1') {
 	    // use new v1.1 dependency resolution APIs	
 	    String searchPath = 	props.getFileProperty('copybookSearch', buildFile)

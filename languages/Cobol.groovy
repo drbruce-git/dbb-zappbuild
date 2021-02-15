@@ -37,16 +37,40 @@ sortedList.each { buildFile ->
 	// Check if this a testcase
 	isZUnitTestCase = (props.getFileProperty('cobol_testcase', buildFile).equals('true')) ? true : false
 
-	// copy build file and dependency files to data sets
-	String rules = props.getFileProperty('cobol_resolutionRules', buildFile)
-	DependencyResolver dependencyResolver = buildUtils.createDependencyResolver(buildFile, rules)
+	// Resolve build dependencies for build file
+	LogicalFile logicalFile = null
+	List<PhysicalDependencies> dependencies = null
+	if (props.dependencySearchVersion && props.dependencySearchVersion = '1.1') {
+	    // use new v1.1 dependency resolution APIs	
+	    String searchPath = 	props.getFileProperty('copybookSearch', buildFile)
+	    if (props.verbose) println "*** Search path for $buildFile: $searchPath"
+	    logicalFile = buildUtils.getScanner(buildFile).scan(workspace, buildFile)
+	    dependencies = buildUtils.resolveDependencies()
+	}
+	else {  
+		// use legacy DependencyResolver
+		String rules = props.getFileProperty('cobol_resolutionRules', buildFile)
+		if (props.verbose) {
+			println "*** Resolution rules for $buildFile:"
+			dependencyResolver.getResolutionRules().each{ rule -> println rule }
+		}
+		DependencyResolver dependencyResolver = buildUtils.createDependencyResolver(buildFile, rules)
+		dependencies = dependencyResolver.resolve()
+		logicalFile = dependencyResolver.getLogicalFile()
+	}
+	if (props.verbose) {
+		println "*** Physical dependencies for $buildFile:"
+		println dependencies
+	}
+	
+	// copy build source file and dependency source files to data sets
 	if(isZUnitTestCase){
 		buildUtils.copySourceFiles(buildFile, props.cobol_testcase_srcPDS, null, null)
 	}else{
-		buildUtils.copySourceFiles(buildFile, props.cobol_srcPDS, props.cobol_cpyPDS, dependencyResolver)
+		buildUtils.copySourceFiles(buildFile, props.cobol_srcPDS, props.cobol_cpyPDS, dependencies)
 	}
+	
 	// create mvs commands
-	LogicalFile logicalFile = dependencyResolver.getLogicalFile()
 	String member = CopyToPDS.createMemberName(buildFile)
 	File logFile = new File( props.userBuild ? "${props.buildOutDir}/${member}.log" : "${props.buildOutDir}/${member}.cobol.log")
 	if (logFile.exists())

@@ -65,7 +65,7 @@ def getFileSet(String dir, boolean relativePaths, String includeFileList, String
  * copySourceFiles - copies both the program being built and the program
  * dependencies from USS directories to data sets
  */
-
+/*
 def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, DependencyResolver dependencyResolver) {
 	// only copy the build file once
 	if (!copiedFileCache.contains(buildFile)) {
@@ -114,6 +114,81 @@ def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, Depen
 			}
 		}
 	}
+}
+*/
+
+/*
+ * copySourceFiles - copies both the program being built and the program
+ * dependencies from USS directories to data sets
+ */
+def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, List<PhysicalDepndency> physicalDependencies) {
+	// only copy the build file once
+	if (!copiedFileCache.contains(buildFile)) {
+		copiedFileCache.add(buildFile)
+		new CopyToPDS().file(new File(getAbsolutePath(buildFile)))
+				.dataset(srcPDS)
+				.member(CopyToPDS.createMemberName(buildFile))
+				.execute()
+	}
+
+	// copy dependencies to dependency data set
+	if (dependencyPDS && physicalDependencies) {
+		physicalDependencies.each { physicalDependency ->
+			if (props.verbose) println physicalDependency
+			if (physicalDependency.isResolved()) {
+				String physicalDependencyLoc = "${physicalDependency.getSourceDir()}/${physicalDependency.getFile()}"
+
+				// only copy the dependency file once per script invocation
+				if (!copiedFileCache.contains(physicalDependencyLoc)) {
+					copiedFileCache.add(physicalDependencyLoc)
+
+					//retrieve zUnitFileExtension plbck
+					zunitFileExtension = (props.zunit_playbackFileExtension) ? props.zunit_playbackFileExtension : null
+
+					if( zunitFileExtension && !zunitFileExtension.isEmpty() && ((physicalDependency.getFile().substring(physicalDependency.getFile().indexOf("."))).contains(zunitFileExtension))){
+						new CopyToPDS().file(new File(physicalDependencyLoc))
+								.copyMode(CopyMode.BINARY)
+								.dataset(dependencyPDS)
+								.member(CopyToPDS.createMemberName(physicalDependency.getFile()))
+								.execute()
+					} else
+					{
+						new CopyToPDS().file(new File(physicalDependencyLoc))
+								.dataset(dependencyPDS)
+								.member(CopyToPDS.createMemberName(physicalDependency.getFile()))
+								.execute()
+					}
+				}
+			}
+		}
+	}
+}
+
+/*
+ * resolveDepencies - recursive method to find all dependencies (resolved and unresolved) for a logical file
+ */
+def resolveDependencies(LogicalFile lfile, String searchPath, allDependencies= new List<PhysicalDependency>()) {
+	// resolve the dependencies for the logical file
+	List<PhysicalDependency> dependencies == lfile.resolveDependencies(searchPath)
+	
+	//iterate dependencies
+	dependencies.each { dependency ->
+		
+		// always add dependency if not in list even if unresolved
+        if (!allDependencies.contains(dependency)) {
+			allDependencies << dependency
+			
+			// if dependency is resolved on file system them search it for additional dependencies
+			if (dependency.isResolved()) {
+				// scan the resolved dependency file to get a logical file
+				def scanner = getScanner(dependency.getFile()))
+				LogicalFile dependencyLogicalFile = scanner.scan(dependency.getSourceDir(),dependency.getFile()
+				// recurively call resolveDependencies to find all dependencies for the logical file
+				allDependencies.addAll(resolveDependencies(dependencyLogicalFile, searchPath, allDependencies))	
+			}
+		}		
+	}
+    return allDependencies
 }
 
 /*

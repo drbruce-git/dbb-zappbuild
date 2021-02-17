@@ -411,7 +411,7 @@ def getScanner(String buildFile){
 		scanner = scannerUtils.getScanner(buildFile)
 	}
 	else {
-		if (props.verbose) println("*** Scanning file with the default scanner")
+		if (props.verbose) println("*** Scanning $buildFile with the DependencyScanner")
 		scanner = new DependencyScanner()
 	}
 }

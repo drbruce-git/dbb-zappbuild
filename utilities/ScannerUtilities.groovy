@@ -16,11 +16,11 @@ import com.ibm.dbb.scanner.zUnit.*
 def getScanner(String buildFile) {
 	def mapping = new PropertyMappings("dbb.scannerMapping")
 	if (mapping.isMapped("ZUnitConfigScanner", buildFile)) {
-		if (props.verbose) println("*** Scanning file with the ZUnitConfigScanner")
+		if (props.verbose) println("*** Scanning $buildFile with the ZUnitConfigScanner")
 		scanner = new ZUnitConfigScanner()
 	}
 	else {
-		if (props.verbose) println("*** Scanning file with the default scanner")
+		if (props.verbose) println("*** Scanning $buildFile with the DependencyScanner")
 		scanner = new DependencyScanner()
 	}
 	return scanner

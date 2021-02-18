@@ -175,7 +175,7 @@ def resolveDependencies(LogicalFile lfile, String searchPath, allDependencies = 
 		
 		// always add dependency if not in list even if unresolved
         if (!allDependencies.contains(dependency)) {
-			allDependencies << dependency
+			allDependencies.add(dependency)
 			
 			// if dependency is resolved on file system them search it for additional dependencies
 			if (dependency.isResolved()) {
@@ -183,7 +183,7 @@ def resolveDependencies(LogicalFile lfile, String searchPath, allDependencies = 
 				def scanner = getScanner(dependency.getFile())
 				LogicalFile dependencyLogicalFile = scanner.scan(dependency.getFile(), dependency.getSourceDir())
 				// recurively call resolveDependencies to find all dependencies for the logical file
-				allDependencies.addAll(resolveDependencies(dependencyLogicalFile, searchPath, allDependencies))	
+				resolveDependencies(dependencyLogicalFile, searchPath, allDependencies)	
 			}
 		}		
 	}

@@ -218,7 +218,7 @@ def calculateChangedFiles(BuildResult lastBuildResult) {
  */
 def findImpacts(LogicalFile logicalFile, List<String> impactCollections, String searchPath, RepositoryClient repositoryClient, allImpacts = new ArrayList<ImpactFile>()) {
 	// resolve the impacted files for the logical file
-	List<ImpactFile> impacts = logicalFile.resolveImpacts(repositoryClient, impactCollections, searchPath)
+	List<ImpactFile> impacts = logicalFile.findImpacts(repositoryClient, impactCollections, searchPath)
 	
 	//iterate impact files
 	impacts.each { impact ->

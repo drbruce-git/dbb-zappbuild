@@ -65,12 +65,26 @@ def createImpactBuildList(RepositoryClient repositoryClient) {
 
 			// perform impact analysis on changed file
 			if (props.verbose) println "** Performing impact analysis on changed file $changedFile"
-			ImpactResolver impactResolver = createImpactResolver(changedFile, props.impactResolutionRules, repositoryClient)
-
-			// get excludeListe
+			
+			def impacts = null
+			if (props.dependencySearchVersion && props.dependencySearchVersion == '1.1') {
+				// use new v1.1 impact resolution APIs
+				def impactCollections = [props.applicationCollectionName, props.applicationOutputsCollectionName]
+				
+				// scan the changed file to get the logical file
+				def scanner = buildUtil.getScanner(changedFile)
+				LogicalFile logicalFile = scanner.scan(changedFile, props.workspace)
+				impacts = findImpacts(logicalFile, impactCollections, props.impactSearch, repositoryClient)
+			}
+			else { // use legacy impact resolver 
+				ImpactResolver impactResolver = createImpactResolver(changedFile, props.impactResolutionRules, repositoryClient)
+				impacts = impactResolver.resolve()
+			}
+			
+			// get excludeList
 			List<PathMatcher> excludeMatchers = createPathMatcherPattern(props.excludeFileList)
-
-			def impacts = impactResolver.resolve()
+			
+			// populate build list
 			impacts.each { impact ->
 				def impactFile = impact.getFile()
 				if (props.verbose) println "** Found impacted file $impactFile"
@@ -198,6 +212,30 @@ def calculateChangedFiles(BuildResult lastBuildResult) {
 		renamedFiles
 	]
 }
+
+/*
+ * findImpacts - recursive method to find all impacted source files for a changed source file
+ */
+def findImpacts(LogicalFile logicalFile, List<String> impactCollections, String searchPath, RepositoryClient repositoryClient, allImpacts = new ArrayList<ImpactFile>()) {
+	// resolve the impacted files for the logical file
+	List<ImpactFile> impacts = logicalFile.resolveImpacts(repositoryClient, impactCollections, searchPath)
+	
+	//iterate impact files
+	impacts.each { impact ->
+		// add the impact file if not already in list
+		if (!allImpacts.contains(impact)) {
+			allImpacts.add(impact)
+			
+		    // check to see if the impacted file impacts other files
+		    def impactScanner = buildUtil.getScanner(impact.getFile())
+		    LogicalFile impactLogicalFile = impactScanner.scan(impact.getFile(), props.workspace)
+		    // recursively call findImpacts to find all impacted files for the logical file
+		    findImpacts(impactLogicalFile, impactCollections, searchPath, repositoryClient, allImpacts)
+		}
+	}
+	return allImpacts
+}
+
 
 def createImpactResolver(String changedFile, String rules, RepositoryClient repositoryClient) {
 	if (props.verbose) println "*** Creating impact resolver for $changedFile with $rules rules"

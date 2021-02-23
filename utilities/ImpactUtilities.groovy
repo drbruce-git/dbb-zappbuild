@@ -72,7 +72,7 @@ def createImpactBuildList(RepositoryClient repositoryClient) {
 				def impactCollections = [props.applicationCollectionName, props.applicationOutputsCollectionName]
 				
 				// scan the changed file to get the logical file
-				def scanner = buildUtil.getScanner(changedFile)
+				def scanner = buildUtils.getScanner(changedFile)
 				LogicalFile logicalFile = scanner.scan(changedFile, props.workspace)
 				impacts = findImpacts(logicalFile, impactCollections, props.impactSearch, repositoryClient)
 			}
@@ -227,7 +227,7 @@ def findImpacts(LogicalFile logicalFile, List<String> impactCollections, String 
 			allImpacts.add(impact)
 			
 		    // check to see if the impacted file impacts other files
-		    def impactScanner = buildUtil.getScanner(impact.getFile())
+		    def impactScanner = buildUtils.getScanner(impact.getFile())
 		    LogicalFile impactLogicalFile = impactScanner.scan(impact.getFile(), props.workspace)
 		    // recursively call findImpacts to find all impacted files for the logical file
 		    findImpacts(impactLogicalFile, impactCollections, searchPath, repositoryClient, allImpacts)

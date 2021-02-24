@@ -219,9 +219,11 @@ def calculateChangedFiles(BuildResult lastBuildResult) {
 def findImpacts(LogicalFile logicalFile, List<String> impactCollections, String searchPath, RepositoryClient repositoryClient, allImpacts = new ArrayList<ImpactFile>()) {
 	// resolve the impacted files for the logical file
 	List<ImpactFile> impacts = logicalFile.findImpacts(repositoryClient, impactCollections, searchPath)
+	if (props.verbose) println "*** Immediate impacts found for ${logicalFile.getLname()}:"
 	
 	//iterate impact files
 	impacts.each { impact ->
+		if (props.verbose) println "**** ${impact.getFile()}"
 		// add the impact file if not already in list
 		if (!allImpacts.contains(impact)) {
 			allImpacts.add(impact)

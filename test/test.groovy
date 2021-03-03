@@ -71,14 +71,14 @@ if (properties.test_testOrder) {
 	   def testScript = loadScript(new File("testScripts/$script"))
 	   
 	   // run test script's init method
-	   if (testScript.metaclass.respondsTo(testScript, "init", Map))
+//	   if (testScript.metaclass.respondsTo(testScript, "init", Map))
 		   testScript.init(argMap)
 		  
 	   // run the test script	   
 	   testScript._run(argMap)
 	   
 	   // run test script's cleanUp method
-	   if (testScript.metaclass.respondsTo(testScript, "cleanUp", Map))
+//	   if (testScript.metaclass.respondsTo(testScript, "cleanUp", Map))
 	   testScript.cleanUp(argMap)
     }
 }

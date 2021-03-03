@@ -3,6 +3,8 @@ import groovy.transform.*
 import com.ibm.dbb.build.*
 
 
+@Field BuildProperties properties = BuildProperties.getInstance()
+
 // use CliBuilder to parse test.groovy input options
 def cli = new CliBuilder(
    usage: '$DBB_HOME/bin/groovyz test.groovy <options>',
@@ -22,8 +24,8 @@ cli.with
    q(longOpt: 'hlq', 'HLQ for dataset reation / deletion (example: IBMDBB.ZAPP.BUILD)', args: 1, required: true)   
    u(longOpt: 'url', 'DBB Web Application server URL', args: 1, required: true)
    i(longOpt: 'id', 'DBB Web Application user id', args: 1, required: true)
-   p(longOpt: 'password', 'DBB Web Application user password')
-   P(longOpt: 'passwordFile', 'DBB Web Application user password file')
+   p(longOpt: 'password', 'DBB Web Application user password', args: 1)
+   P(longOpt: 'passwordFile', 'DBB Web Application user password file', args: 1)
 }
 
 def options = cli.parse(args)
@@ -54,7 +56,7 @@ if (!argMap.repoPath)
 	argMap.repoPath = "${getScriptDir()}/applications/${argMap.application}"
 
 // Load application test.properties file
-BuildProperties.load(new File("${getScriptDir()}/applications/${argMap.application}/test.properties"))
+properties.load(new File("${getScriptDir()}/applications/${argMap.application}/test.properties"))
 
 // run test.init
 init(argMap)

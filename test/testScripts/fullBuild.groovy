@@ -1,4 +1,4 @@
-groovy.transform.BaseScript com.ibm.dbb.groovy.ScriptLoader baseScript
+@groovy.transform.BaseScript com.ibm.dbb.groovy.ScriptLoader baseScript
 import groovy.transform.*
 import com.ibm.dbb.*
 import com.ibm.dbb.build.*

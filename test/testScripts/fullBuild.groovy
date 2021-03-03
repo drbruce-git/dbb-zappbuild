@@ -19,7 +19,7 @@ import com.ibm.dbb.build.*
  ******************************************************************************************/
 
 @Field BuildProperties properties = BuildProperties.getInstance()
-println "*** Executing test script fullBuild.groovy"
+println "\n** Executing test script fullBuild.groovy"
 
 def dbbHome = EnvVars.getHome()
 println "*** DBB_HOME = ${dbbHome}"
@@ -48,11 +48,11 @@ if (files) {
 }*/
 
 def init (argMap) {
-	println "*** Executing fullBuild.init()"
+	println "** Executing fullBuild.init()"
 
 }
 
 def cleanUp (argMap) {
-	println "*** Executing fullBuild.cleanUp()"
+	println "** Executing fullBuild.cleanUp()"
 
 }

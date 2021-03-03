@@ -4,6 +4,7 @@ import com.ibm.dbb.build.*
 
 
 @Field BuildProperties properties = BuildProperties.getInstance()
+println "** Executing zAppBuil test framework test/test.groovy"
 
 // use CliBuilder to parse test.groovy input options
 def cli = new CliBuilder(
@@ -94,23 +95,23 @@ cleanUp(argMap)
 
 
 def init(argMap) {
-	println "*** Executing test.init()"
+	println "** Executing test.init()"
 
 }
 
 def cleanUp(argMap) {
-	println "*** Executing test.cleanUp()"
+	println "** Executing test.cleanUp()"
 
 }
 
 def dumpArgsProps(argMap) {
-	println "*** Passed arguments a startup"
+	println "** Passed arguments a startup"
     argMap.each { key, value ->
 		println "$key = $value"
 	}	
 	
-	println "Properties loaded from ${getScriptDir()}/applications/${argMap.application}/test.properties"
-	properties.list()
+	println "** Properties loaded from applications/${argMap.application}/test.properties"
+	println properties.list()
 }
 // /u/dbbAutomation/workspace/Automation_Jobs/DBB_All_BuildS/DBBZtoolkitTar/bin/groovyz /u/dbbAutomation/workspace/Automation_Jobs/ZAppBuildTest/ZAppBuild/dbb-zappbuild/test/test.groovy -r /u/dbbAutomation/workspace/Automation_Jobs/ZAppBuildTest/ZAppBuild/dbb-zappbuild -b AutomationTest -a MortgageApplication -q IBMDBB.ZAPPB.BUILD -s https://dbbdev.rtp.raleigh.ibm.com:19443/dbb/ -u ADMIN -p ADMIN -n 9 -f epsmort.bms,epsmlis.bms,epsnbrvl.cbl,epscsmrt.cbl,epsmlist.cbl,epsmpmt.cbl,epscmort.cbl,epscsmrd.cbl,epsmlist.lnk -i epsmort.bms,epscmort.cbl -m 2 -c /bms/epsmort.bms
 // /u/dbbAutomation/workspace/Automation_Jobs/DBB_All_BuildS/DBBZtoolkitTar/bin/groovyz /u/dbbAutomation/workspace/Automation_Jobs/ZAppBuildTest/ZAppBuild/dbb-zappbuild/test/test.groovy -r /u/dbbAutomation/workspace/Automation_Jobs/ZAppBuildTest/ZAppBuild/dbb-zappbuild -b AutomationTest -a MortgageApplication -q IBMDBB.ZAPPB.BUILD -s https://dbbdev.rtp.raleigh.ibm.com:19443/dbb/ -u ADMIN -p ADMIN -f epsmort.bms,epsmlis.bms,epsnbrvl.cbl,epscsmrt.cbl,epsmlist.cbl,epsmpmt.cbl,epscmort.cbl,epscsmrd.cbl,epsmlist.lnk -i epsmort.bms,epscmort.cbl -c /bms/epsmort.bms

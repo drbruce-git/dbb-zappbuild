@@ -1,12 +1,8 @@
 groovy.transform.BaseScript com.ibm.dbb.groovy.ScriptLoader baseScript
-
 import groovy.transform.*
-import org.apache.commons.cli.Option
 import com.ibm.dbb.*
 import com.ibm.dbb.build.*
 
-@Field BuildProperties properties = BuildProperties.getInstance()
-println "/////********Executing full build using these build properties\n${properties.list()}\n"
 /****************************************************************************************
 1. Creates an automation branch from ${branchName} 
 2. Sets the values up for datasets in the datasets.properties
@@ -21,11 +17,19 @@ println "/////********Executing full build using these build properties\n${prope
 @param password              Password for server
 @param fullFiles             Build files for verification
 ******************************************************************************************/
+
+@Field BuildProperties properties = BuildProperties.getInstance()
+println "*** Executing impact build using these build properties\n${properties.list()}\n"
 def dbbHome = EnvVars.getHome()
 
 def zAppBuildDir = getScriptDir()
-println "***This is zAppBuildDir home****:${zAppBuildDir}"
-println "***This is dbb home****:${dbbHome}"
+println "*** This is zAppBuildDir home****:${zAppBuildDir}"
+println "*** This is dbb home****:${dbbHome}"
+
+println "*** Passed argMap values"
+argMap.each { key, value ->
+	println "**** $key = $value"
+}
 
 /*def runFullBuild = """
     cd ${properties.repoPath}
@@ -49,3 +53,19 @@ if (files) {
   fileList.addAll(files.trim().split(',')) 
   assert fileList.count{ i-> outputStream.contains(i) } == fileList.size() : "///***FILES PROCESSED IN THE FULLBUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${fileList}.\n HERE IS THE OUTPUT FROM FULLBUILD \n$outputStream\n"
 }*/
+
+def init (argMap) {
+	println "*** Executing impactBuild.init()"
+	println "*** Passed argMap values"
+	argMap.each { key, value ->
+		println "**** $key = $value"
+	}
+}
+
+def cleanUp (argMap) {
+	println "*** Executing impactBuild.cleanUp()"
+	println "*** Passed argMap values"
+	argMap.each { key, value ->
+		println "**** $key = $value"
+	}
+}

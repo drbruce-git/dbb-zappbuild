@@ -49,9 +49,12 @@ if (options.i) argMap.id = options.i
 if (options.p) argMap.password = options.p
 if (options.P) argMap.passwordFile = options.P
 
+// set repoPath to default value if null/empty
+if (!argMap.repoPath)
+	argMap.repoPath = "${getScriptDir()}/applications/${argMap.application}"
 
 // Load application test.properties file
-properties.load(new File("${getScriptDir()}/applications/${argMap.application}/test.properties"))
+BuildProperties.load(new File("${getScriptDir()}/applications/${argMap.application}/test.properties"))
 
 // run test.init
 init(argMap)

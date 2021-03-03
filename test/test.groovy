@@ -65,8 +65,8 @@ init(argMap)
 if (properties.test_testOrder) {
 	println("** Invoking test scripts according to test list order: ${properties.test_testOrder}")
 	
-	String[] testListOrder = properties.test_testOrder.split(',')
-	testOrderList.each { script ->
+	String[] testList = properties.test_testOrder.split(',')
+	testList.each { script ->
 	   // load the Groovy test script class	
 	   def testScript = loadScript(new File("testScripts/$script"))
 	   

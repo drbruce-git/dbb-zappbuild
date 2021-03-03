@@ -19,17 +19,10 @@ import com.ibm.dbb.build.*
 ******************************************************************************************/
 
 @Field BuildProperties properties = BuildProperties.getInstance()
-println "*** Executing impact build using these build properties\n${properties.list()}\n"
+println "*** Executing impact build using these build properties\n${properties.list()}"
 def dbbHome = EnvVars.getHome()
+println "*** $DBB_HOME = ${dbbHome}"
 
-def zAppBuildDir = getScriptDir()
-println "*** This is zAppBuildDir home****:${zAppBuildDir}"
-println "*** This is dbb home****:${dbbHome}"
-
-println "*** Passed argMap values"
-argMap.each { key, value ->
-	println "**** $key = $value"
-}
 
 /*def runFullBuild = """
     cd ${properties.repoPath}
@@ -56,16 +49,10 @@ if (files) {
 
 def init (argMap) {
 	println "*** Executing impactBuild.init()"
-	println "*** Passed argMap values"
-	argMap.each { key, value ->
-		println "**** $key = $value"
-	}
+
 }
 
 def cleanUp (argMap) {
 	println "*** Executing impactBuild.cleanUp()"
-	println "*** Passed argMap values"
-	argMap.each { key, value ->
-		println "**** $key = $value"
-	}
+
 }

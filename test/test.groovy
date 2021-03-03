@@ -58,6 +58,9 @@ if (!argMap.repoPath)
 // Load application test.properties file
 properties.load(new File("${getScriptDir()}/applications/${argMap.application}/test.properties"))
 
+// dump arguments and properties
+dumpArgsProps(argMap)
+
 // run test.init
 init(argMap)
 
@@ -71,14 +74,12 @@ if (properties.test_testOrder) {
 	   def testScript = loadScript(new File("testScripts/$script"))
 	   
 	   // run test script's init method
-//	   if (testScript.metaclass.respondsTo(testScript, "init", Map))
-		   testScript.init(argMap)
+	   testScript.init(argMap)
 		  
 	   // run the test script	   
 	   testScript._run(argMap)
 	   
 	   // run test script's cleanUp method
-//	   if (testScript.metaclass.respondsTo(testScript, "cleanUp", Map))
 	   testScript.cleanUp(argMap)
     }
 }
@@ -99,7 +100,17 @@ def init(argMap) {
 
 def cleanUp(argMap) {
 	println "*** Executing test.cleanUp()"
+
+}
+
+def dumpArgsProps(argMap) {
+	println "*** Passed arguments a startup"
+    argMap.each { key, value ->
+		println "$key = $value"
+	}	
 	
+	println "Properties loaded from ${getScriptDir()}/applications/${argMap.application}/test.properties"
+	properties.list()
 }
 // /u/dbbAutomation/workspace/Automation_Jobs/DBB_All_BuildS/DBBZtoolkitTar/bin/groovyz /u/dbbAutomation/workspace/Automation_Jobs/ZAppBuildTest/ZAppBuild/dbb-zappbuild/test/test.groovy -r /u/dbbAutomation/workspace/Automation_Jobs/ZAppBuildTest/ZAppBuild/dbb-zappbuild -b AutomationTest -a MortgageApplication -q IBMDBB.ZAPPB.BUILD -s https://dbbdev.rtp.raleigh.ibm.com:19443/dbb/ -u ADMIN -p ADMIN -n 9 -f epsmort.bms,epsmlis.bms,epsnbrvl.cbl,epscsmrt.cbl,epsmlist.cbl,epsmpmt.cbl,epscmort.cbl,epscsmrd.cbl,epsmlist.lnk -i epsmort.bms,epscmort.cbl -m 2 -c /bms/epsmort.bms
 // /u/dbbAutomation/workspace/Automation_Jobs/DBB_All_BuildS/DBBZtoolkitTar/bin/groovyz /u/dbbAutomation/workspace/Automation_Jobs/ZAppBuildTest/ZAppBuild/dbb-zappbuild/test/test.groovy -r /u/dbbAutomation/workspace/Automation_Jobs/ZAppBuildTest/ZAppBuild/dbb-zappbuild -b AutomationTest -a MortgageApplication -q IBMDBB.ZAPPB.BUILD -s https://dbbdev.rtp.raleigh.ibm.com:19443/dbb/ -u ADMIN -p ADMIN -f epsmort.bms,epsmlis.bms,epsnbrvl.cbl,epscsmrt.cbl,epsmlist.cbl,epsmpmt.cbl,epscmort.cbl,epscsmrd.cbl,epsmlist.lnk -i epsmort.bms,epscmort.cbl -c /bms/epsmort.bms

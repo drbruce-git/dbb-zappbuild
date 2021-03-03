@@ -19,9 +19,9 @@ import com.ibm.dbb.build.*
 ******************************************************************************************/
 
 @Field BuildProperties properties = BuildProperties.getInstance()
-println "*** Executing impact build using these build properties\n${properties.list()}"
+println "*** Executing test script impactBuild.groovy"
 def dbbHome = EnvVars.getHome()
-println "*** $DBB_HOME = ${dbbHome}"
+println "*** DBB_HOME = ${dbbHome}"
 
 
 /*def runFullBuild = """

@@ -3,56 +3,76 @@ import groovy.transform.*
 import com.ibm.dbb.*
 import com.ibm.dbb.build.*
 
-/****************************************************************************************
- 1. Creates an automation branch from ${branchName}
- 2. Sets the values up for datasets in the datasets.properties
- 3. Cleans up test PDSEs
- 4. Runs a full build using mortgage application
- @param repoPath              Path to ZAppBuild Repo
- @param branchName            Feature branch to create a test(automation) branch against
- @param app                   Application that is being tested (example: MortgageApplication)
- @param hlq                   hlq to delete segments from (example: IBMDBB.ZAPP.BUILD)
- @param serverURL             Server URL example(https://dbbdev.rtp.raleigh.ibm.com:19443/dbb/)
- @param userName              User for server
- @param password              Password for server
- @param fullFiles             Build files for verification
- ******************************************************************************************/
-
 @Field BuildProperties properties = BuildProperties.getInstance()
 println "\n** Executing test script fullBuild.groovy"
 
+// Get the DBB_HOME location
 def dbbHome = EnvVars.getHome()
-println "*** DBB_HOME = ${dbbHome}"
+if (argMap.verbose) println "** DBB_HOME = ${dbbHome}"
 
-/*def runFullBuild = """
-    cd ${properties.repoPath}
-    git checkout ${properties.branchName}
-    git checkout -b automation ${properties.branchName}
-    mv ${properties.repoPath}/test/samples/${properties.app}/datasets.properties ${properties.repoPath}/build-conf/datasets.properties
-    ${dbbHome}/bin/groovyz ${properties.repoPath}/build.groovy --workspace ${properties.repoPath}/samples --application ${properties.app} --outDir ${properties.repoPath}/out --hlq ${properties.hlq} --logEncoding UTF-8 --url ${properties.serverURL} --id ${properties.userName} --pw ${properties.password} --fullBuild
-"""
-def process = ['bash', '-c', runFullBuild].execute()
+// create full build command
+def fullBuildCommand = [] 
+fullBuildCommand << "${dbbHome}/bin/groovyz"
+fullBuildCommand << "${properties.zAppBuildDir}/build.groovy"
+fullBuildCommand << "--workspace ${properties.workspace}"
+fullBuildCommand << "--application ${argMap.app}"
+fullBuildCommand << "--outDir ${properties.zAppBuildDir}/out"
+fullBuildCommand << "--hlq ${argMap.hlq}"
+fullBuildCommand << "--logEncoding UTF-8"
+fullBuildCommand << "--url ${argMap.url}"
+fullBuildCommand << "--id ${argMap.id}"
+fullBuildCommand << (argMap.pw ? "--pw ${argMap.pw}" : "--pwFile ${argMap.pwFile}")
+fullBuildCommand << (argMap.verbose ? "--verbose" : "")
+fullBuildCommand << "--fullBuild
+
+// run full build 
+println "** Executing ${fullBuildCommand.join(" ")}"
+def process = ['bash', '-c', fullBuildCommand.join(" ")].execute()
 def outputStream = new StringBuffer();
 process.waitForProcessOutput(outputStream, System.err)
 
-def list = properties.fullFiles
-def listNew = list.split(',')
-def numFullFiles = listNew.size()
-assert outputStream.contains("Build State : CLEAN") && outputStream.contains("Total files processed : ${numFullFiles}") : "///***EITHER THE FULLBUILD FAILED OR TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numFullFiles}.\n HERE IS THE OUTPUT FROM FULLBUILD \n$outputStream\n"
+//validate build results
+println "** Validating full build results"
+def expectedFilesBuiltList = properties.fullBuild_expectedFilesBuilt.split(',')
 
-def files = properties.fullFiles
-List<String> fileList = []
-if (files) {
-  fileList.addAll(files.trim().split(',')) 
-  assert fileList.count{ i-> outputStream.contains(i) } == fileList.size() : "///***FILES PROCESSED IN THE FULLBUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${fileList}.\n HERE IS THE OUTPUT FROM FULLBUILD \n$outputStream\n"
-}*/
+try {
+	// Validate clean build
+	assert outputStream.contains("Build State : CLEAN") : "*! FULL BUILD FAILED"
 
-def init (argMap) {
-	println "** Executing fullBuild.init()"
+	// Validate expected number of files built
+	def numFullFiles = expectedFilesBuiltList.size()
+	assert outputStream.contains("Total files processed : ${numFullFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numFullFiles}"
 
+	// Validate expected built files in output stream
+	assert fileList.count{ i-> outputStream.contains(i) } == fileList.size() : "*! FILES PROCESSED IN THE FULLBUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${fileList}"
+	
+	println "**Full Build Test : SUCCESS"
+}
+finally {
+	if (properties.verbose) {
+		println "** Full Build Console: "
+		println outputStream
+		println ""
+	}
+	
+	cleanUpDatasets(argMap)
 }
 
-def cleanUp (argMap) {
-	println "** Executing fullBuild.cleanUp()"
+// script end
 
+//*************************************************************
+// Method Definitions
+//*************************************************************
+
+def cleanUpDatasets(argMap) {
+	def segments = properties.fullBuild_datasetsToCleanUp.split(',')
+	
+	println "Deleting test PDSEs ${segments}"
+	segments.each { segment ->
+	    def pds = "'${argMap.hlq}.${segment}'"
+	    if (ZFile.dsExists(pds)) {
+	       if (argMap.verbose) println "** Deleting ${pds}"
+	       ZFile.remove("//$pds")
+	    }
+	}
 }

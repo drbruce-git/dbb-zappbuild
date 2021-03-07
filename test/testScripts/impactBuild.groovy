@@ -48,11 +48,11 @@ if (files) {
 }*/
 
 def init (argMap) {
-	println "*** Executing impactBuild.init()"
+	println "** Executing impactBuild.init()"
 
 }
 
 def cleanUp (argMap) {
-	println "*** Executing impactBuild.cleanUp()"
+	println "** Executing impactBuild.cleanUp()"
 
 }

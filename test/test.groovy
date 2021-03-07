@@ -21,7 +21,7 @@ if (argMap.appRepo) {
 	properties.workspace = new File(properties.appLocation).getParent()
 }
 else { // default to zAppBuild repo locations
-	properties.appLocation = "${properties.zAppBuildDir}/samples/${argMap.app}
+	properties.appLocation = "${properties.zAppBuildDir}/samples/${argMap.app}"
 	properties.workspace = "${properties.zAppBuildDir}/samples"
 }
 

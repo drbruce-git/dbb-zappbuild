@@ -15,7 +15,7 @@ properties.load(new File("${getScriptDir()}/applications/${argMap.app}/test.prop
 
 // add some additional properties
 properties.testBranch = 'zAppBuildTesting'
-properties.zAppBuildDir = getScriptDir().getParent()
+properties.zAppBuildDir = new File(getScriptDir()).getParent()
 if (argMap.appRepo) {
 	properties.appLocation = argMap.appRepo
 	properties.workspace = new File(properties.appLocation).getParent()

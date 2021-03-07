@@ -88,6 +88,8 @@ def createArgMap(String [] args) {
 	   v(longOpt: 'verbose', 'Flag indicating to print trace statements')
 	}
 	
+	def options = cli.parse(args)
+	
 	// Show usage text when -h or --help option is used.
 	if (options.h) {
 		cli.usage()

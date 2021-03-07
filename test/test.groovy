@@ -4,7 +4,7 @@ import com.ibm.dbb.build.*
 
 println "** Executing zAppBuild test framework test/test.groovy"
 
-BuildProperties properties = BuildProperties.getInstance()
+@Field BuildProperties properties = BuildProperties.getInstance()
 def zAppBuildDir = getScriptDir()
 
 // Parse test script arguments

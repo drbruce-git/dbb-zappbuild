@@ -120,6 +120,7 @@ def createTestBranch(argMap) {
     cd ${properties.zAppBuildDir}
     git checkout ${argMap.branch}
     git checkout -b ${properties.testBranch} ${argMap.branch}
+    git status
 """
 	def job = ['bash', '-c', createTestBranch].execute()
 	job.waitFor()
@@ -138,6 +139,7 @@ def deleteTestBranch(argMap) {
     git rest --hard ${properties.testBranch}
     git checkout ${argMap.branch}
     git branch -D ${properties.testBranch}
+    git status
 """
 	def job = ['bash', '-c', deleteTestBranch].execute()
 	job.waitFor()

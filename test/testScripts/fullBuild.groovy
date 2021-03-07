@@ -23,7 +23,7 @@ fullBuildCommand << "--url ${argMap.url}"
 fullBuildCommand << "--id ${argMap.id}"
 fullBuildCommand << (argMap.pw ? "--pw ${argMap.pw}" : "--pwFile ${argMap.pwFile}")
 fullBuildCommand << (argMap.verbose ? "--verbose" : "")
-fullBuildCommand << "--fullBuild
+fullBuildCommand << "--fullBuild"
 
 // run full build 
 println "** Executing ${fullBuildCommand.join(" ")}"

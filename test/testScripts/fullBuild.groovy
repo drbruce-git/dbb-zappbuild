@@ -4,26 +4,26 @@ import com.ibm.dbb.*
 import com.ibm.dbb.build.*
 import com.ibm.jzos.ZFile
 
-@Field BuildProperties properties = BuildProperties.getInstance()
+@Field BuildProperties props = BuildProperties.getInstance()
 println "\n** Executing test script fullBuild.groovy"
 
 // Get the DBB_HOME location
 def dbbHome = EnvVars.getHome()
-if (argMap.verbose) println "** DBB_HOME = ${dbbHome}"
+if (props.verbose) println "** DBB_HOME = ${dbbHome}"
 
 // create full build command
 def fullBuildCommand = [] 
 fullBuildCommand << "${dbbHome}/bin/groovyz"
-fullBuildCommand << "${properties.zAppBuildDir}/build.groovy"
-fullBuildCommand << "--workspace ${properties.workspace}"
-fullBuildCommand << "--application ${argMap.app}"
-fullBuildCommand << "--outDir ${properties.zAppBuildDir}/out"
-fullBuildCommand << "--hlq ${argMap.hlq}"
+fullBuildCommand << "${props.zAppBuildDir}/build.groovy"
+fullBuildCommand << "--workspace ${props.workspace}"
+fullBuildCommand << "--application ${props.app}"
+fullBuildCommand << "--outDir ${props.zAppBuildDir}/out"
+fullBuildCommand << "--hlq ${props.hlq}"
 fullBuildCommand << "--logEncoding UTF-8"
-fullBuildCommand << "--url ${argMap.url}"
-fullBuildCommand << "--id ${argMap.id}"
-fullBuildCommand << (argMap.pw ? "--pw ${argMap.pw}" : "--pwFile ${argMap.pwFile}")
-fullBuildCommand << (argMap.verbose ? "--verbose" : "")
+fullBuildCommand << "--url ${props.url}"
+fullBuildCommand << "--id ${props.id}"
+fullBuildCommand << (props.pw ? "--pw ${props.pw}" : "--pwFile ${props.pwFile}")
+fullBuildCommand << (props.verbose ? "--verbose" : "")
 fullBuildCommand << "--fullBuild"
 
 // run full build 
@@ -34,7 +34,7 @@ process.waitForProcessOutput(outputStream, System.err)
 
 //validate build results
 println "** Validating full build results"
-def expectedFilesBuiltList = properties.fullBuild_expectedFilesBuilt.split(',')
+def expectedFilesBuiltList = props.fullBuild_expectedFilesBuilt.split(',')
 
 try {
 	// Validate clean build
@@ -50,13 +50,13 @@ try {
 	println "**Full Build Test : SUCCESS"
 }
 finally {
-	if (properties.verbose) {
+	if (props.verbose) {
 		println "** Full Build Console: "
 		println outputStream
 		println ""
 	}
 	
-	cleanUpDatasets(argMap)
+	cleanUpDatasets(props)
 }
 
 // script end
@@ -65,14 +65,14 @@ finally {
 // Method Definitions
 //*************************************************************
 
-def cleanUpDatasets(argMap) {
-	def segments = properties.fullBuild_datasetsToCleanUp.split(',')
+def cleanUpDatasets(BuildProperties props) {
+	def segments = props.fullBuild_datasetsToCleanUp.split(',')
 	
 	println "Deleting test PDSEs ${segments}"
 	segments.each { segment ->
-	    def pds = "'${argMap.hlq}.${segment}'"
+	    def pds = "'${props.hlq}.${segment}'"
 	    if (ZFile.dsExists(pds)) {
-	       if (argMap.verbose) println "** Deleting ${pds}"
+	       if (props.verbose) println "** Deleting ${pds}"
 	       ZFile.remove("//$pds")
 	    }
 	}

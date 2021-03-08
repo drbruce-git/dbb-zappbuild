@@ -4,53 +4,32 @@ import com.ibm.dbb.build.*
 
 println "** Executing zAppBuild test framework test/test.groovy"
 
-@Field BuildProperties properties = BuildProperties.getInstance()
-def zAppBuildDir = getScriptDir()
-
-// Parse test script arguments
-def argMap = createArgMap(args)
-
-// Load application test.properties file
-properties.load(new File("${getScriptDir()}/applications/${argMap.app}/test.properties"))
-
-// add some additional properties
-properties.testBranch = 'zAppBuildTesting'
-properties.zAppBuildDir = new File(getScriptDir()).getParent()
-if (argMap.appRepo) {
-	properties.appLocation = argMap.appRepo
-	properties.workspace = new File(properties.appLocation).getParent()
-}
-else { // default to zAppBuild repo locations
-	properties.appLocation = "${properties.zAppBuildDir}/samples/${argMap.app}" as String
-	properties.workspace = "${properties.zAppBuildDir}/samples" as String
-}
-
-// dump arguments and properties
-if (argMap.verbose) dumpArgsProps(argMap)
+// Parse test script arguments and load build properties
+BuildProperties props = loadBuildProperties(args)
 
 // create a test branch to run under
-createTestBranch(argMap)
+createTestBranch(props)
 
 // run the test scripts
 try {
-	if (properties.test_testOrder) {
-		println("** Invoking test scripts according to test list order: ${properties.test_testOrder}")
+	if (props.test_testOrder) {
+		println("** Invoking test scripts according to test list order: ${props.test_testOrder}")
 		
-		String[] testOrder = properties.test_testOrder.split(',')
+		String[] testOrder = props.test_testOrder.split(',')
 		
 		testOrder.each { script ->
 		   // run the test script	
 		   println("** Invoking $script")   
-		   runScript(new File("testScripts/$script"), argMap)
+		   runScript(new File("testScripts/$script"), [:])
 	    }
 	}
 	else {
-		println("*! No test scripts to run in application ${argMap.application}.  Nothing to do.")
+		println("*! No test scripts to run in application ${props.app}.  Nothing to do.")
 	}
 }
 finally {
 	// delete test branch
-	deleteTestBranch(argMap)
+	deleteTestBranch(props)
 }
 // end script
 
@@ -60,9 +39,9 @@ finally {
 //************************************************************
 
 /*
- * Parse command line arguments and store in argMap
+ * Parse command line arguments and store in Build Properties
  */
-def createArgMap(String [] args) {
+def loadBuildProperties(String [] args) {
 	// use CliBuilder to parse test.groovy input options
 	def cli = new CliBuilder(
 	   usage: '$DBB_HOME/bin/groovyz test.groovy <options>',
@@ -77,7 +56,6 @@ def createArgMap(String [] args) {
 	   b(longOpt: 'branch', 'zAppBuild branch to test', args: 1, required: true)
 	   l(longOpt: 'appRepo', '[Optional] location of external app repo to use in test. Defaults to zAppBuild', args: 1)
 
-	   
 	   // zAppBuild options
 	   a(longOpt: 'app', 'Application that is being tested (example: MortgageApplication)', args: 1, required: true)
 	   q(longOpt: 'hlq', 'HLQ for dataset reation / deletion (example: USER.BUILD)', args: 1, required: true)
@@ -96,65 +74,79 @@ def createArgMap(String [] args) {
 		System.exit(0)
 	}
 	
-	// store the command line arguments in a map to pass to test scripts
-	def argMap = [:]
-	if (options.b) argMap.branch = options.b
-	if (options.r) argMap.appRepo = options.r
-	if (options.a) argMap.app = options.a
-	if (options.q) argMap.hlq = options.q
-	if (options.u) argMap.url = options.u
-	if (options.i) argMap.id = options.i
-	if (options.p) argMap.pw = options.p
-	if (options.P) argMap.pwFile = options.P
-	if (options.v) argMap.verbose = 'true'
+	// load build properties
+	BuildProperties props = BuildProperties.getInstance()
 	
-	return argMap
+	// store the command line arguments in the Build Properties for all scripts to access
+	if (options.b) props.branch = options.b
+	if (options.r) props.appRepo = options.r
+	if (options.a) props.app = options.a
+	if (options.q) props.hlq = options.q
+	if (options.u) props.url = options.u
+	if (options.i) props.id = options.i
+	if (options.p) props.pw = options.p
+	if (options.P) props.pwFile = options.P
+	if (options.v) props.verbose = 'true'
+	
+	// Load application test.properties file
+	props.load(new File("${getScriptDir()}/applications/${props.app}/test.properties"))
+	
+	// add some additional properties
+	props.testBranch = 'zAppBuildTesting'
+	props.zAppBuildDir = new File(getScriptDir()).getParent()
+	
+	if (props.appRepo) {
+		props.appLocation = props.appRepo
+		props.workspace = new File(props.appLocation).getParent()
+	}
+	else { // default to zAppBuild repo locations
+		props.appLocation = "${props.zAppBuildDir}/samples/${props.app}" as String
+		props.workspace = "${props.zAppBuildDir}/samples" as String
+	}
+	
+	// print properties
+	if (props.verbose) {
+		println "** Properties args and applications/${props.app}/test.properties"
+		println props.list()
+	}
+		
+	return props
 }
 
 /*
  * Create and checkout a local test branch for testing
  */
-def createTestBranch(argMap) {
-	println "** Creating and checking out branch ${properties.testBranch}"
+def createTestBranch(BuildProperties props) {
+	println "** Creating and checking out branch ${props.testBranch}"
 	def createTestBranch = """
-    cd ${properties.zAppBuildDir}
-    git checkout ${argMap.branch}
-    git checkout -b ${properties.testBranch} ${argMap.branch}
+    cd ${props.zAppBuildDir}
+    git checkout ${props.branch}
+    git checkout -b ${props.testBranch} ${props.branch}
     git status
 """
 	def job = ['bash', '-c', createTestBranch].execute()
 	job.waitFor()
 	def createBranch = job.in.text
 	println "** Git Exit code: " + job.exitValue()
-	if (argMap.verbose) println "** Output:  $createBranch"
+	if (props.verbose) println "** Output:  $createBranch"
 }
 
 /*
  * Deletes test branch
  */
-def deleteTestBranch(argMap) {
-	println "\n** Deleting test branch ${properties.testBranch}"
+def deleteTestBranch(BuildProperties props) {
+	println "\n** Deleting test branch ${props.testBranch}"
 	def deleteTestBranch = """
-    cd ${properties.zAppBuildDir}
-    git rest --hard ${properties.testBranch}
-    git checkout ${argMap.branch}
-    git branch -D ${properties.testBranch}
+    cd ${props.zAppBuildDir}
+    git rest --hard ${props.testBranch}
+    git checkout ${props.branch}
+    git branch -D ${props.testBranch}
     git status
 """
 	def job = ['bash', '-c', deleteTestBranch].execute()
 	job.waitFor()
 	def deleteBranch = job.in.text
 	println "** Git Exit code: " + job.exitValue()
-	if (argMap.verbose) println "** Output:  $deleteBranch"
-}
-
-def dumpArgsProps(argMap) {
-	println "** Passed arguments a startup"
-    argMap.each { key, value ->
-		println "$key = $value"
-	}	
-	
-	println "** Properties loaded from applications/${argMap.app}/test.properties"
-	println properties.list()
+	if (props.verbose) println "** Output:  $deleteBranch"
 }
 

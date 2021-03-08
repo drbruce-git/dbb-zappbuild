@@ -38,24 +38,18 @@ def expectedFilesBuiltList = props.fullBuild_expectedFilesBuilt.split(',')
 
 try {
 	// Validate clean build
-	assert outputStream.contains("Build State : CLEAN") : "*! FULL BUILD FAILED"
+	assert outputStream.contains("Build State : CLEAN") : "*! FULL BUILD FAILED\nOUTPUT STREAM:\n$outputStream\n"
 
 	// Validate expected number of files built
 	def numFullFiles = expectedFilesBuiltList.size()
-	assert outputStream.contains("Total files processed : ${numFullFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numFullFiles}"
+	assert outputStream.contains("Total files processed : ${numFullFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numFullFiles}\nOUTPUT STREAM:\n$outputStream\n"
 
 	// Validate expected built files in output stream
-	assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE FULL BUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${expectedFilesBuiltList}"
+	assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE FULL BUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${expectedFilesBuiltList}\nOUTPUT STREAM:\n$outputStream\n"
 	
-	println "**Full Build Test : SUCCESS"
+	println "** FULL BUILD TEST : PASSED **"
 }
 finally {
-	if (props.verbose) {
-		println "** Full Build Console: "
-		println outputStream
-		println ""
-	}
-	
 	cleanUpDatasets()
 }
 

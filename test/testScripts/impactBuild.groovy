@@ -75,23 +75,16 @@ def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMapping) 
 		def expectedFilesBuiltList = filesBuiltMapping.getValue().split(',')
 		
 		// Validate clean build
-		assert outputStream.contains("Build State : CLEAN") : "*! IMPACT BUILD FAILED"
+		assert outputStream.contains("Build State : CLEAN") : "*! IMPACT BUILD FAILED\nOUTPUT STREAM:\n$outputStream\n"
 	
 		// Validate expected number of files built
 		def numImpactFiles = expectedFilesBuiltList.size()
-		assert outputStream.contains("Total files processed : ${numImpactFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numImpactFiles}"
+		assert outputStream.contains("Total files processed : ${numImpactFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numImpactFiles}\nOUTPUT STREAM:\n$outputStream\n"
 	
 		// Validate expected built files in output stream
-		assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE IMPACT BUILD DOES NOT CONTAIN THE LIST OF FILES EXPECTED ${expectedFilesBuiltList}"
+		assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE IMPACT BUILD DOES NOT CONTAIN THE LIST OF FILES EXPECTED ${expectedFilesBuiltList}\nOUTPUT STREAM:\n$outputStream\n"
 		
-		println "**Impact Build Test : SUCCESS"
-	}
-	finally {
-		if (props.verbose) {
-			println "** Full Build Console: "
-			println outputStream
-			println ""
-		}
+		println "** IMPACT BUILD TEST : PASSED **"
 	}
 }
 

@@ -2,57 +2,108 @@
 import groovy.transform.*
 import com.ibm.dbb.*
 import com.ibm.dbb.build.*
-
-/****************************************************************************************
-1. Creates an automation branch from ${branchName} 
-2. Sets the values up for datasets in the datasets.properties
-3. Cleans up test PDSEs
-4. Runs a full build using mortgage application
-@param repoPath              Path to ZAppBuild Repo
-@param branchName            Feature branch to create a test(automation) branch against
-@param app                   Application that is being tested (example: MortgageApplication)
-@param hlq                   hlq to delete segments from (example: IBMDBB.ZAPP.BUILD)
-@param serverURL             Server URL example(https://dbbdev.rtp.raleigh.ibm.com:19443/dbb/)
-@param userName              User for server
-@param password              Password for server
-@param fullFiles             Build files for verification
-******************************************************************************************/
+import com.ibm.jzos.ZFile
 
 @Field BuildProperties properties = BuildProperties.getInstance()
 println "\n** Executing test script impactBuild.groovy"
+
+// Get the DBB_HOME location
 def dbbHome = EnvVars.getHome()
-println "*** DBB_HOME = ${dbbHome}"
+if (props.verbose) println "** DBB_HOME = ${dbbHome}"
 
+// create impact build command
+def impactBuildCommand = []
+impactBuildCommand << "${dbbHome}/bin/groovyz"
+impactBuildCommand << "${props.zAppBuildDir}/build.groovy"
+impactBuildCommand << "--workspace ${props.workspace}"
+impactBuildCommand << "--application ${props.app}"
+impactBuildCommand << "--outDir ${props.zAppBuildDir}/out"
+impactBuildCommand << "--hlq ${props.hlq}"
+impactBuildCommand << "--logEncoding UTF-8"
+impactBuildCommand << "--url ${props.url}"
+impactBuildCommand << "--id ${props.id}"
+impactBuildCommand << (props.pw ? "--pw ${props.pw}" : "--pwFile ${props.pwFile}")
+impactBuildCommand << (props.verbose ? "--verbose" : "")
+impactBuildCommand << "--impactBuild"
 
-/*def runFullBuild = """
-    cd ${properties.repoPath}
-    git checkout ${properties.branchName}
-    git checkout -b automation ${properties.branchName}
-    mv ${properties.repoPath}/test/samples/${properties.app}/datasets.properties ${properties.repoPath}/build-conf/datasets.properties
-    ${dbbHome}/bin/groovyz ${properties.repoPath}/build.groovy --workspace ${properties.repoPath}/samples --application ${properties.app} --outDir ${properties.repoPath}/out --hlq ${properties.hlq} --logEncoding UTF-8 --url ${properties.serverURL} --id ${properties.userName} --pw ${properties.password} --fullBuild
-"""
-def process = ['bash', '-c', runFullBuild].execute()
-def outputStream = new StringBuffer();
-process.waitForProcessOutput(outputStream, System.err)
-
-def list = properties.fullFiles
-def listNew = list.split(',')
-def numFullFiles = listNew.size()
-assert outputStream.contains("Build State : CLEAN") && outputStream.contains("Total files processed : ${numFullFiles}") : "///***EITHER THE FULLBUILD FAILED OR TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numFullFiles}.\n HERE IS THE OUTPUT FROM FULLBUILD \n$outputStream\n"
-
-def files = properties.fullFiles
-List<String> fileList = []
-if (files) {
-  fileList.addAll(files.trim().split(',')) 
-  assert fileList.count{ i-> outputStream.contains(i) } == fileList.size() : "///***FILES PROCESSED IN THE FULLBUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${fileList}.\n HERE IS THE OUTPUT FROM FULLBUILD \n$outputStream\n"
-}*/
-
-def init (argMap) {
-	println "** Executing impactBuild.init()"
-
+// iterate through change files to test impact build
+PropertyMappings filesBuiltMapping = new PropertyMappings(props.impactBuild_expectedFilesBuilt)
+def changedFiles = props.impactBuild_changedFiles.split(',')
+changedFiles.each { changedFile -->
+	try {
+		// update changed file in Git repo test branch
+		copyAndCommit(changedFile)
+		
+		// run impact build
+		println "** Executing ${impactBuildCommand.join(" ")}"
+		def outputStream = new StringBuffer()
+		def process = ['bash', '-c', impactBuildCommand.join(" ")].execute()
+		process.waitForProcessOutput(outputStream, System.err)
+		
+		// validate build results
+		validateImpactBuild(changedFile, filesBuiltMappings)
+		
+	}
+	finally {
+		cleanUpDatasets()
+	}
 }
 
-def cleanUp (argMap) {
-	println "** Executing impactBuild.cleanUp()"
+// script end  
 
+
+//*************************************************************
+// Method Definitions
+//*************************************************************
+
+def copyAndCommit(String changedFile) {
+	println "Copying and committing $changedFile to test application repo"
+	def commands = """
+    cp ${props.zAppBuildDir}/test/applications/${props.app}/${changedFile} ${props.appLocation}/${changedFile}
+    cd ${props.appLocation}/
+    git add .
+    git commit . -m "edited program file"
+"""
+	def task = ['bash', '-c', commands].execute()
+	def outputStream = new StringBuffer();
+	task.waitForProcessOutput(outputStream, System.err)
+}
+
+def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMapping) {
+	try {
+		println "** Validating impact build results"
+		def expectedFilesBuiltList = filesBuiltMapping.getValue().split(',')
+		
+		// Validate clean build
+		assert outputStream.contains("Build State : CLEAN") : "*! IMPACT BUILD FAILED"
+	
+		// Validate expected number of files built
+		def numImpactFiles = expectedFilesBuiltList.size()
+		assert outputStream.contains("Total files processed : ${numImpactFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numImpactFiles}"
+	
+		// Validate expected built files in output stream
+		assert fileList.count{ i-> outputStream.contains(i) } == fileList.size() : "*! FILES PROCESSED IN THE IMPACT BUILD DOES NOT CONTAIN THE LIST OF FILES EXPECTED ${fileList}"
+		
+		println "**Impact Build Test : SUCCESS"
+	}
+	finally {
+		if (props.verbose) {
+			println "** Full Build Console: "
+			println outputStream
+			println ""
+		}
+	}
+}
+
+def cleanUpDatasets() {
+	def segments = props.impactBuild_datasetsToCleanUp.split(',')
+	
+	println "Deleting impact build PDSEs ${segments}"
+	segments.each { segment ->
+	    def pds = "'${props.hlq}.${segment}'"
+	    if (ZFile.dsExists(pds)) {
+	       if (props.verbose) println "** Deleting ${pds}"
+	       ZFile.remove("//$pds")
+	    }
+	}
 }

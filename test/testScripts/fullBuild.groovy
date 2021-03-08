@@ -56,7 +56,7 @@ finally {
 		println ""
 	}
 	
-	cleanUpDatasets(props)
+	cleanUpDatasets()
 }
 
 // script end
@@ -65,10 +65,10 @@ finally {
 // Method Definitions
 //*************************************************************
 
-def cleanUpDatasets(BuildProperties props) {
+def cleanUpDatasets() {
 	def segments = props.fullBuild_datasetsToCleanUp.split(',')
 	
-	println "Deleting test PDSEs ${segments}"
+	println "Deleting full build PDSEs ${segments}"
 	segments.each { segment ->
 	    def pds = "'${props.hlq}.${segment}'"
 	    if (ZFile.dsExists(pds)) {

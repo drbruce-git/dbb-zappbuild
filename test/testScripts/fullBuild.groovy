@@ -23,7 +23,7 @@ fullBuildCommand << "--logEncoding UTF-8"
 fullBuildCommand << "--url ${props.url}"
 fullBuildCommand << "--id ${props.id}"
 fullBuildCommand << (props.pw ? "--pw ${props.pw}" : "--pwFile ${props.pwFile}")
-fullBuildCommand << (props.verbose ? "--verbose" : "")
+// fullBuildCommand << (props.verbose ? "--verbose" : "")
 fullBuildCommand << "--fullBuild"
 
 // run full build 
@@ -45,7 +45,7 @@ try {
 	assert outputStream.contains("Total files processed : ${numFullFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numFullFiles}"
 
 	// Validate expected built files in output stream
-	assert fileList.count{ i-> outputStream.contains(i) } == fileList.size() : "*! FILES PROCESSED IN THE FULLBUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${fileList}"
+	assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE FULL BUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${expectedFilesBuiltList}"
 	
 	println "**Full Build Test : SUCCESS"
 }

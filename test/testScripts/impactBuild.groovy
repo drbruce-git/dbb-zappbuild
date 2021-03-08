@@ -23,7 +23,7 @@ impactBuildCommand << "--logEncoding UTF-8"
 impactBuildCommand << "--url ${props.url}"
 impactBuildCommand << "--id ${props.id}"
 impactBuildCommand << (props.pw ? "--pw ${props.pw}" : "--pwFile ${props.pwFile}")
-impactBuildCommand << (props.verbose ? "--verbose" : "")
+// impactBuildCommand << (props.verbose ? "--verbose" : "")
 impactBuildCommand << "--impactBuild"
 
 // iterate through change files to test impact build
@@ -82,7 +82,7 @@ def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMapping) 
 		assert outputStream.contains("Total files processed : ${numImpactFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numImpactFiles}"
 	
 		// Validate expected built files in output stream
-		assert fileList.count{ i-> outputStream.contains(i) } == fileList.size() : "*! FILES PROCESSED IN THE IMPACT BUILD DOES NOT CONTAIN THE LIST OF FILES EXPECTED ${fileList}"
+		assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE IMPACT BUILD DOES NOT CONTAIN THE LIST OF FILES EXPECTED ${expectedFilesBuiltList}"
 		
 		println "**Impact Build Test : SUCCESS"
 	}

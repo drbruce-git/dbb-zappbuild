@@ -127,8 +127,7 @@ def createTestBranch(BuildProperties props) {
 	def job = ['bash', '-c', createTestBranch].execute()
 	job.waitFor()
 	def createBranch = job.in.text
-	println "** Git Exit code: " + job.exitValue()
-	if (props.verbose) println "** Output:\n$createBranch"
+	println "$createBranch"
 }
 
 /*
@@ -147,7 +146,6 @@ def deleteTestBranch(BuildProperties props) {
 	def job = ['bash', '-c', deleteTestBranch].execute()
 	job.waitFor()
 	def deleteBranch = job.in.text
-	println "** Git Exit code: " + job.exitValue()
-	if (props.verbose) println "** Output:\n$deleteBranch"
+	println "$deleteBranch"
 }
 

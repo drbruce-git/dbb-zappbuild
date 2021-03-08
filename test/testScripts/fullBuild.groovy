@@ -47,7 +47,9 @@ try {
 	// Validate expected built files in output stream
 	assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE FULL BUILD DOES NOT CONTAIN THE LIST OF FILES PASSED ${expectedFilesBuiltList}\nOUTPUT STREAM:\n$outputStream\n"
 	
+	println "**"
 	println "** FULL BUILD TEST : PASSED **"
+	println "**"
 }
 finally {
 	cleanUpDatasets()

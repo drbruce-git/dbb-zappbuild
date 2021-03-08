@@ -122,6 +122,7 @@ def createTestBranch(BuildProperties props) {
     cd ${props.zAppBuildDir}
     git checkout ${props.branch}
     git checkout -b ${props.testBranch} ${props.branch}
+    git status
 """
 	def job = ['bash', '-c', createTestBranch].execute()
 	job.waitFor()
@@ -140,6 +141,7 @@ def deleteTestBranch(BuildProperties props) {
     git reset --hard ${props.testBranch}
     git checkout ${props.branch}
     git branch -D ${props.testBranch}
+    git status
 """
 	def job = ['bash', '-c', deleteTestBranch].execute()
 	job.waitFor()

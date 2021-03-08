@@ -4,7 +4,7 @@ import com.ibm.dbb.*
 import com.ibm.dbb.build.*
 import com.ibm.jzos.ZFile
 
-@Field BuildProperties properties = BuildProperties.getInstance()
+@Field BuildProperties props = BuildProperties.getInstance()
 println "\n** Executing test script impactBuild.groovy"
 
 // Get the DBB_HOME location

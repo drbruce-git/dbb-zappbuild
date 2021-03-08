@@ -31,7 +31,7 @@ PropertyMappings filesBuiltMapping = new PropertyMappings(props.impactBuild_expe
 def changedFiles = props.impactBuild_changedFiles.split(',')
 
 try {
-	changedFiles.each { changedFile -->
+	changedFiles.each { changedFile ->
 		// update changed file in Git repo test branch
 		copyAndCommit(changedFile)
 		

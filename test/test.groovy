@@ -128,7 +128,7 @@ def createTestBranch(BuildProperties props) {
 	job.waitFor()
 	def createBranch = job.in.text
 	println "** Git Exit code: " + job.exitValue()
-	if (props.verbose) println "** Output:  $createBranch"
+	if (props.verbose) println "** Output:\n$createBranch"
 }
 
 /*
@@ -138,6 +138,7 @@ def deleteTestBranch(BuildProperties props) {
 	println "\n** Deleting test branch ${props.testBranch}"
 	def deleteTestBranch = """
     cd ${props.zAppBuildDir}
+    rm -r out
     git reset --hard ${props.testBranch}
     git checkout ${props.branch}
     git branch -D ${props.testBranch}
@@ -147,6 +148,6 @@ def deleteTestBranch(BuildProperties props) {
 	job.waitFor()
 	def deleteBranch = job.in.text
 	println "** Git Exit code: " + job.exitValue()
-	if (props.verbose) println "** Output:  $deleteBranch"
+	if (props.verbose) println "** Output:\n$deleteBranch"
 }
 

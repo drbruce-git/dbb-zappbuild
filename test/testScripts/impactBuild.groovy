@@ -42,7 +42,7 @@ try {
 		process.waitForProcessOutput(outputStream, System.err)
 		
 		// validate build results
-		validateImpactBuild(changedFile, filesBuiltMappings)
+		validateImpactBuild(changedFile, filesBuiltMappings, outputStream)
 	}
 }
 finally {
@@ -70,7 +70,7 @@ def copyAndCommit(String changedFile) {
 	task.waitForProcessOutput(outputStream, System.err)
 }
 
-def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMappings) {
+def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMappings, StringBuffer outputStream) {
 
 	println "** Validating impact build results"
 	def expectedFilesBuiltList = filesBuiltMappings.getValue(changedFile).split(',')

@@ -27,7 +27,7 @@ impactBuildCommand << (props.pw ? "--pw ${props.pw}" : "--pwFile ${props.pwFile}
 impactBuildCommand << "--impactBuild"
 
 // iterate through change files to test impact build
-PropertyMappings filesBuiltMappings = new PropertyMappings(props.impactBuild_expectedFilesBuilt)
+PropertyMappings filesBuiltMappings = new PropertyMappings('impactBuild_expectedFilesBuilt')
 def changedFiles = props.impactBuild_changedFiles.split(',')
 println("** Processing changed files from impactBuild_changedFiles property : ${props.impactBuild_changedFiles}")
 try {

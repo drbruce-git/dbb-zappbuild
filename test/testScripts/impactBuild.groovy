@@ -29,7 +29,7 @@ impactBuildCommand << "--impactBuild"
 // iterate through change files to test impact build
 PropertyMappings filesBuiltMappings = new PropertyMappings(props.impactBuild_expectedFilesBuilt)
 def changedFiles = props.impactBuild_changedFiles.split(',')
-
+println("** Processing changed files from impactBuild_changedFiles property : ${props.impactBuild_changedFiles}")
 try {
 	changedFiles.each { changedFile ->
 		// update changed file in Git repo test branch
@@ -58,7 +58,7 @@ finally {
 //*************************************************************
 
 def copyAndCommit(String changedFile) {
-	println "Copying and committing $changedFile to test application repo"
+	println "** Copying and committing $changedFile to test application repo"
 	def commands = """
     cp ${props.zAppBuildDir}/test/applications/${props.app}/${changedFile} ${props.appLocation}/${changedFile}
     cd ${props.appLocation}/
@@ -73,7 +73,7 @@ def copyAndCommit(String changedFile) {
 def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMappings) {
 
 	println "** Validating impact build results"
-	def expectedFilesBuiltList = filesBuiltMappings.getValue().split(',')
+	def expectedFilesBuiltList = filesBuiltMappings.getValue(changedFile).split(',')
 	
 	// Validate clean build
 	assert outputStream.contains("Build State : CLEAN") : "*! IMPACT BUILD FAILED\nOUTPUT STREAM:\n$outputStream\n"

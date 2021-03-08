@@ -71,24 +71,23 @@ def copyAndCommit(String changedFile) {
 }
 
 def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMapping) {
-	try {
-		println "** Validating impact build results"
-		def expectedFilesBuiltList = filesBuiltMapping.getValue().split(',')
-		
-		// Validate clean build
-		assert outputStream.contains("Build State : CLEAN") : "*! IMPACT BUILD FAILED\nOUTPUT STREAM:\n$outputStream\n"
+
+	println "** Validating impact build results"
+	def expectedFilesBuiltList = filesBuiltMapping.getValue().split(',')
 	
-		// Validate expected number of files built
-		def numImpactFiles = expectedFilesBuiltList.size()
-		assert outputStream.contains("Total files processed : ${numImpactFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numImpactFiles}\nOUTPUT STREAM:\n$outputStream\n"
+	// Validate clean build
+	assert outputStream.contains("Build State : CLEAN") : "*! IMPACT BUILD FAILED\nOUTPUT STREAM:\n$outputStream\n"
+
+	// Validate expected number of files built
+	def numImpactFiles = expectedFilesBuiltList.size()
+	assert outputStream.contains("Total files processed : ${numImpactFiles}") : "*! TOTAL FILES PROCESSED ARE NOT EQUAL TO ${numImpactFiles}\nOUTPUT STREAM:\n$outputStream\n"
+
+	// Validate expected built files in output stream
+	assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE IMPACT BUILD DOES NOT CONTAIN THE LIST OF FILES EXPECTED ${expectedFilesBuiltList}\nOUTPUT STREAM:\n$outputStream\n"
 	
-		// Validate expected built files in output stream
-		assert expectedFilesBuiltList.count{ i-> outputStream.contains(i) } == expectedFilesBuiltList.size() : "*! FILES PROCESSED IN THE IMPACT BUILD DOES NOT CONTAIN THE LIST OF FILES EXPECTED ${expectedFilesBuiltList}\nOUTPUT STREAM:\n$outputStream\n"
-		
-		println "**"
-		println "** IMPACT BUILD TEST : PASSED **"
-		println "**"
-	}
+	println "**"
+	println "** IMPACT BUILD TEST : PASSED **"
+	println "**"
 }
 
 def cleanUpDatasets() {

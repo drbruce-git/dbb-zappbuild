@@ -27,7 +27,7 @@ impactBuildCommand << (props.pw ? "--pw ${props.pw}" : "--pwFile ${props.pwFile}
 impactBuildCommand << "--impactBuild"
 
 // iterate through change files to test impact build
-PropertyMappings filesBuiltMapping = new PropertyMappings(props.impactBuild_expectedFilesBuilt)
+PropertyMappings filesBuiltMappings = new PropertyMappings(props.impactBuild_expectedFilesBuilt)
 def changedFiles = props.impactBuild_changedFiles.split(',')
 
 try {
@@ -70,10 +70,10 @@ def copyAndCommit(String changedFile) {
 	task.waitForProcessOutput(outputStream, System.err)
 }
 
-def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMapping) {
+def validateImpactBuild(String changedFile, PropertyMappings filesBuiltMappings) {
 
 	println "** Validating impact build results"
-	def expectedFilesBuiltList = filesBuiltMapping.getValue().split(',')
+	def expectedFilesBuiltList = filesBuiltMappings.getValue().split(',')
 	
 	// Validate clean build
 	assert outputStream.contains("Build State : CLEAN") : "*! IMPACT BUILD FAILED\nOUTPUT STREAM:\n$outputStream\n"

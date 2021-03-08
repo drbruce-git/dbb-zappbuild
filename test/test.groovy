@@ -19,7 +19,6 @@ try {
 		
 		testOrder.each { script ->
 		   // run the test script	
-		   println("** Invoking $script")   
 		   runScript(new File("testScripts/$script"), [:])
 	    }
 	}

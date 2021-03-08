@@ -138,7 +138,7 @@ def deleteTestBranch(BuildProperties props) {
 	println "\n** Deleting test branch ${props.testBranch}"
 	def deleteTestBranch = """
     cd ${props.zAppBuildDir}
-    git rest --hard ${props.testBranch}
+    git reset --hard ${props.testBranch}
     git checkout ${props.branch}
     git branch -D ${props.testBranch}
     git status

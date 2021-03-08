@@ -29,8 +29,9 @@ impactBuildCommand << "--impactBuild"
 // iterate through change files to test impact build
 PropertyMappings filesBuiltMapping = new PropertyMappings(props.impactBuild_expectedFilesBuilt)
 def changedFiles = props.impactBuild_changedFiles.split(',')
-changedFiles.each { changedFile -->
-	try {
+
+try {
+	changedFiles.each { changedFile -->
 		// update changed file in Git repo test branch
 		copyAndCommit(changedFile)
 		
@@ -42,12 +43,12 @@ changedFiles.each { changedFile -->
 		
 		// validate build results
 		validateImpactBuild(changedFile, filesBuiltMappings)
-		
-	}
-	finally {
-		cleanUpDatasets()
 	}
 }
+finally {
+	cleanUpDatasets()
+}
+
 
 // script end  
 

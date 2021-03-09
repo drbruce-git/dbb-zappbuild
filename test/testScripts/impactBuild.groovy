@@ -32,7 +32,7 @@ def changedFiles = props.impactBuild_changedFiles.split(',')
 println("** Processing changed files from impactBuild_changedFiles property : ${props.impactBuild_changedFiles}")
 try {
 	changedFiles.each { changedFile ->
-		println "Running impact build test for $changedFile"
+		println "\n** Running impact build test for $changedFile"
 		
 		// update changed file in Git repo test branch
 		copyAndCommit(changedFile)

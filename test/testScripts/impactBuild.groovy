@@ -32,6 +32,8 @@ def changedFiles = props.impactBuild_changedFiles.split(',')
 println("** Processing changed files from impactBuild_changedFiles property : ${props.impactBuild_changedFiles}")
 try {
 	changedFiles.each { changedFile ->
+		println "Running impact build test for $changedFile"
+		
 		// update changed file in Git repo test branch
 		copyAndCommit(changedFile)
 		
@@ -58,7 +60,7 @@ finally {
 //*************************************************************
 
 def copyAndCommit(String changedFile) {
-	println "** Copying and committing $changedFile to test application repo"
+	println "** Copying and committing ${props.zAppBuildDir}/test/applications/${props.app}/${changedFile} to ${props.appLocation}/${changedFile}"
 	def commands = """
     cp ${props.zAppBuildDir}/test/applications/${props.app}/${changedFile} ${props.appLocation}/${changedFile}
     cd ${props.appLocation}/

@@ -1,6 +1,7 @@
 @groovy.transform.BaseScript com.ibm.dbb.groovy.ScriptLoader baseScript
 import com.ibm.dbb.repository.*
 import com.ibm.dbb.dependency.*
+import com.ibm.dbb.dependency.internal.LogicalFileCache
 import com.ibm.dbb.build.*
 import groovy.transform.*
 import com.ibm.jzos.ZFile

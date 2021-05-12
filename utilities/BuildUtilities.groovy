@@ -432,7 +432,7 @@ def updateProgramLogicalFileSQLFlag(DependencyResolver resolver, List<PhysicalDe
 				LogicalFileCache.add(sourceDir, dependencyLogicalFile)
 			}
 			else
-				if (props.verbose) println "**** Located logical file for depenency $file in cache"
+				if (props.verbose) println "**** Located logical file for dependency $file in cache"
 				
 			// test if the dependency logical file isSQL
 			if (dependencyLogicalFile.isSQL()) {

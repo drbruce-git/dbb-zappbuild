@@ -77,8 +77,9 @@ def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, Depen
 	}
 
 	// resolve the logical dependencies to physical files to copy to data sets
+	List<PhysicalDependency> physicalDependencies = new ArrayList<PhysicalDependency>()
 	if (dependencyPDS && dependencyResolver) {
-		List<PhysicalDependency> physicalDependencies = dependencyResolver.resolve()
+		physicalDependencies = dependencyResolver.resolve()
 		if (props.verbose) {
 			println "*** Resolution rules for $buildFile:"
 			dependencyResolver.getResolutionRules().each{ rule -> println rule }
@@ -114,6 +115,8 @@ def copySourceFiles(String buildFile, String srcPDS, String dependencyPDS, Depen
 			}
 		}
 	}
+	
+	return physicalDependencies
 }
 
 /*
@@ -395,3 +398,52 @@ def getLangPrefix(String scriptName){
 	return langPrefix
 }
 
+/*
+ * This method loops through the list of physical dependencies from the dependency resolver in order to get the 
+ * dependency's logical file and test to see if any are marked as isSQL and then update the programs logical file 
+ * isSQL. 
+ */
+def updateProgramLogicalFileSQLFlag(DependencyResolver resolver, List<PhysicalDependency> physicalDependencies) {
+	LogicalFile logicalFile = resolver.getLogicalFile()
+	
+	if (props.verbose) println "*** Searching dependencies for ${resolver.getFile()}."
+	// no need to do anything if the flag is already set
+	if (logicalFile.isSQL()) {
+		if (props.verbose) println "**** Program is already marked isSQL. Exiting search."
+		return
+	}
+	
+	// iterate through the program's physical dependencies
+	physicalDependencies.find { physicalDependency ->
+		
+		// only consider resolved physical dependencies
+		if (physicalDependency.isResolved()) {
+			String file = physicalDependency.getFile()
+			String sourceDir = resolver.getSourceDir()
+			
+			// try to get the dependency's logical file from the DBB logical file cache
+			LogicalFile dependencyLogicalFile = LogicalFileCache.get(sourceDir, file)
+			
+			if (dependencyLogicalFile == null) {
+				// if not there then scan the file and add the logical file to the cache for next time
+				if (props.verbose) println "**** Scanning dependency $file for logical file"
+				dependencyLogicalFile = resolver.scanner.scan(file, sourceDir)
+				LogicalFileCache.add(sourceDir, dependencyLogicalFile)
+			}
+			else
+				if (props.verbose) println "**** Located logical file for depenency $file in cache"
+				
+			// test if the dependency logical file isSQL
+			if (dependencyLogicalFile.isSQL()) {
+				logicalFile.setSQL(true)
+				// once the program's SQL flag is set return true to exit the find loop
+				return true
+			}
+		}
+		// return false to continue the find loop
+		return false
+	}
+	
+	if (logicalFile.isSQL() && props.verbose)
+		println "**** Program logical file has been updated to isSQL == true"
+}

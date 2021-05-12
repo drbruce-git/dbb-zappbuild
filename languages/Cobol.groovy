@@ -40,7 +40,7 @@ sortedList.each { buildFile ->
 	// copy build file and dependency files to data sets
 	String rules = props.getFileProperty('cobol_resolutionRules', buildFile)
 	DependencyResolver dependencyResolver = buildUtils.createDependencyResolver(buildFile, rules)
-	List<PhysicalDependecy> physicalDependencies = new ArrayList<PhysicalDependency>()
+	List<PhysicalDependency> physicalDependencies = new ArrayList<PhysicalDependency>()
 	if(isZUnitTestCase){
 		buildUtils.copySourceFiles(buildFile, props.cobol_testcase_srcPDS, null, null)
 	}else{

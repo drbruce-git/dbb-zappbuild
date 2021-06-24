@@ -295,6 +295,21 @@ def updateCollection(changedFiles, deletedFiles, renamedFiles, RepositoryClient 
 			def scanner = buildUtils.getScanner(file)
 			try {
 				def logicalFile = scanner.scan(file, props.workspace)
+				
+				
+				//remove CALL dependencies from logical file
+				if (props.verbose) println "*** Removing CALL dependencies from logical file for $file"
+				Iterator<LogicalDependency> it = logicalFile.getLogicalDependencies().iterator()
+				while (it.hasNext()) {
+					LogicalDependency ld = it.next()
+					if (props.verbose) println "**** Checking logical dependency $ld"
+					if (ld.getCategory().equals('CALL'))
+					{
+						if (props.verbose) println "**** Removing logical dependency"
+						it.remove()	
+					}
+				} 
+				
 				if (props.verbose) println "*** Logical file for $file =\n$logicalFile"
 				logicalFiles.add(logicalFile)
 			} catch (Exception e) {
